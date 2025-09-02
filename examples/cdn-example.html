@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4.js CDN Example</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: Arial, sans-serif;
+        }
+        #container {
+            width: 100vw;
+            height: 100vh;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h3>4.js CDN Example</h3>
+        <p>Using 4.js via CDN with UMD build</p>
+    </div>
+    <div id="container"></div>
+
+    <!-- Include Three.js first -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+    
+    <!-- Include 4.js UMD build (replace with your GitHub URL) -->
+    <script src="../dist/4js.umd.js"></script>
+
+    <script>
+        // FourJS is now available globally
+        const app = new FourJS({
+            container: '#container',
+            enableShadows: true,
+            background: 0x001122
+        });
+
+        // Add a cargo robot
+        const robot = app.addCargoRobot({
+            position: [0, 0, 0],
+            body: { type: 'capsule', color: 0x0066cc }
+        });
+
+        // Add some basic shapes
+        app.addCube({ position: [-3, 1, 0], color: 0xff6600 });
+        app.addSphere({ position: [3, 1, 0], color: 0x00ff00 });
+
+        // Add animations
+        app.animate.rotate(robot, { speed: 0.01 });
+        app.animate.float(robot, { amplitude: 0.5, speed: 0.02 });
+
+        // Add particles
+        app.particles.createStars({ count: 200 });
+
+        // Add lighting
+        app.lighting.createThreePointLighting();
+
+        // Start the scene
+        app.start();
+    </script>
+</body>
+</html>

@@ -41,16 +41,35 @@ scene.start();
 
 ## 📦 Installation
 
+### Option 1: NPM (Coming Soon)
 ```bash
 npm install 4js
 ```
 
-Or use directly in HTML:
+### Option 2: CDN (Recommended)
+```html
+<!-- Include Three.js first -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
 
+<!-- Include 4.js -->
+<script src="https://cdn.jsdelivr.net/gh/yourusername/4js@main/dist/4js.umd.js"></script>
+
+<script>
+  // Now you can use FourJS globally
+  const app = new FourJS();
+  app.addCargoRobot();
+  app.start();
+</script>
+```
+
+### Option 3: ES Modules
 ```html
 <script type="module">
-  import { FourJS } from './src/4js.js';
-  // Your code here
+  import { FourJS } from 'https://cdn.jsdelivr.net/gh/yourusername/4js@main/dist/4js.es.js';
+  
+  const app = new FourJS();
+  app.addCargoRobot();
+  app.start();
 </script>
 ```
 
