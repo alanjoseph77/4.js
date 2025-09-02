@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4.js - Basic Example</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="info">
+        <h3>4.js Basic Example</h3>
+        <p>Mouse: Orbit camera</p>
+        <p>Wheel: Zoom</p>
+        <p>Watch the cargo robot with animations!</p>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+            "three/examples/jsm/controls/OrbitControls.js": "https://unpkg.com/three@0.158.0/examples/jsm/controls/OrbitControls.js"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import { FourJS } from '../src/4js.js';
+
+        // Create scene
+        const scene = new FourJS('#canvas');
+
+        // Add a ground plane
+        const ground = scene.addPlane({
+            width: 20,
+            height: 20,
+            color: 0x333333,
+            position: [0, -2, 0]
+        });
+
+        // Add cargo robot
+        const robot = scene.addCargoRobot({
+            position: [0, 0, 0],
+            head: { type: 'dome', color: 0x00ff00 },
+            body: { type: 'cylinder', color: 0x0066cc },
+            arms: { type: 'articulated', color: 0xff6600 },
+            legs: { type: 'hydraulic', color: 0x666666 }
+        });
+
+        // Add some basic shapes
+        const cube = scene.addCube({
+            position: [-3, 0, 0],
+            color: 0xff0000
+        });
+
+        const sphere = scene.addSphere({
+            position: [3, 0, 0],
+            color: 0x00ff00
+        });
+
+        // Add animations
+        scene.animate.rotate(robot, { axis: 'y', speed: 0.01 });
+        scene.animate.float(robot, { amplitude: 0.3, frequency: 1 });
+        scene.animate.rotate(cube, { axis: 'all', speed: 0.02 });
+        scene.animate.pulse(sphere, { scale: [0.8, 1.2], duration: 2 });
+
+        // Add particle effects
+        scene.particles.stars({ count: 500, spread: 50 });
+
+        // Set camera position
+        scene.setCameraPosition(8, 6, 8).lookAt(0, 0, 0);
+
+        // Show UI
+        scene.ui.showFPS();
+        const infoPanel = scene.ui.infoPanel({
+            title: 'Scene Stats',
+            data: {
+                objects: scene.scene.children.length,
+                animations: scene.animate.getActiveCount()
+            }
+        });
+
+        // Start the scene
+        scene.start();
+
+        // Update info panel periodically
+        setInterval(() => {
+            infoPanel.update({
+                objects: scene.scene.children.length,
+                animations: scene.animate.getActiveCount(),
+                fps: scene.ui.fps
+            });
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4.js - Cargo Robot Showcase</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+            "three/examples/jsm/controls/OrbitControls.js": "https://unpkg.com/three@0.158.0/examples/jsm/controls/OrbitControls.js"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import { FourJS } from '../src/4js.js';
+
+        // Create scene
+        const scene = new FourJS('#canvas');
+
+        // Add ground
+        const ground = scene.addPlane({
+            width: 30,
+            height: 30,
+            color: 0x222222,
+            position: [0, -3, 0]
+        });
+
+        // Create multiple cargo robots with different configurations
+        const robots = [];
+
+        // Robot 1: Default configuration
+        const robot1 = scene.addCargoRobot({
+            position: [-6, 0, 0],
+            head: { type: 'dome', color: 0x00ff00 },
+            body: { type: 'cylinder', color: 0x0066cc },
+            arms: { type: 'articulated', color: 0xff6600 }
+        });
+        robots.push(robot1);
+
+        // Robot 2: Cubic head, box body
+        const robot2 = scene.addCargoRobot({
+            position: [0, 0, 0],
+            head: { type: 'cubic', color: 0xff0066 },
+            body: { type: 'box', color: 0x6600cc },
+            arms: { type: 'mechanical', color: 0x00ff66 },
+            legs: { type: 'mechanical', color: 0x888888 }
+        });
+        robots.push(robot2);
+
+        // Robot 3: Cylindrical head, capsule body
+        const robot3 = scene.addCargoRobot({
+            position: [6, 0, 0],
+            head: { type: 'cylindrical', color: 0xffff00 },
+            body: { type: 'capsule', color: 0xff6600 },
+            feet: { type: 'tracked', color: 0x444444 }
+        });
+        robots.push(robot3);
+
+        // Robot 4: Large scale robot
+        const robot4 = scene.addCargoRobot({
+            position: [0, 0, -6],
+            scale: 1.5,
+            head: { type: 'dome', color: 0x00ffff },
+            body: { type: 'cylinder', color: 0xff00ff },
+            backpack: { type: 'cargo', color: 0x996633 }
+        });
+        robots.push(robot4);
+
+        // Add different animations to each robot
+        scene.animate.rotate(robot1, { axis: 'y', speed: 0.01 });
+        scene.animate.float(robot1, { amplitude: 0.2, frequency: 0.8 });
+
+        scene.animate.pulse(robot2, { scale: [0.9, 1.1], duration: 3 });
+        scene.animate.rotate(robot2.components.head, { axis: 'x', speed: 0.02 });
+
+        scene.animate.orbit(robot3, { 
+            center: { x: 6, y: 0, z: 0 }, 
+            radius: 2, 
+            speed: 0.005,
+            axis: 'y'
+        });
+
+        scene.animate.bounce(robot4, { height: 1, duration: 2 });
+
+        // Add dynamic lighting
+        scene.lighting.coloredLights({
+            colors: [0xff0000, 0x00ff00, 0x0000ff, 0xffff00],
+            positions: [
+                [-8, 5, 8],
+                [8, 5, 8],
+                [8, 5, -8],
+                [-8, 5, -8]
+            ],
+            animate: true
+        });
+
+        // Add particle effects
+        scene.particles.magic({
+            position: [0, 3, 0],
+            count: 50,
+            colors: [0xff00ff, 0x00ffff, 0xffff00],
+            spread: 15
+        });
+
+        // Set camera position
+        scene.setCameraPosition(12, 8, 12).lookAt(0, 0, 0);
+
+        // UI Setup
+        scene.ui.showFPS();
+        
+        const controlPanel = scene.ui.controlPanel({
+            title: 'Robot Controls',
+            position: 'bottom-left'
+        });
+
+        // Add controls for robot animations
+        controlPanel.addButton('Toggle Robot 1 Animation', () => {
+            if (scene.animate.getActiveCount() > 0) {
+                scene.animate.stopAll(robot1);
+            } else {
+                scene.animate.rotate(robot1, { axis: 'y', speed: 0.01 });
+                scene.animate.float(robot1, { amplitude: 0.2, frequency: 0.8 });
+            }
+        });
+
+        controlPanel.addButton('Explode Robot 2', () => {
+            scene.particles.explosion({
+                position: robot2.position.toArray(),
+                count: 200,
+                speed: 8
+            });
+        });
+
+        controlPanel.addSlider('Robot 4 Scale', 0.5, 3, 1.5, (value) => {
+            robot4.scale.setScalar(value);
+        });
+
+        controlPanel.addCheckbox('Show Wireframe', false, (checked) => {
+            robots.forEach(robot => {
+                robot.traverse(child => {
+                    if (child.material) {
+                        child.material.wireframe = checked;
+                    }
+                });
+            });
+        });
+
+        const infoPanel = scene.ui.infoPanel({
+            title: 'Cargo Robot Stats',
+            data: {
+                'Total Robots': robots.length,
+                'Components per Robot': '12+',
+                'Active Animations': scene.animate.getActiveCount()
+            }
+        });
+
+        // Start the scene
+        scene.start();
+
+        // Show welcome notification
+        scene.ui.showNotification('Welcome to the Cargo Robot Showcase!', {
+            type: 'success',
+            duration: 4000
+        });
+
+        // Update stats
+        setInterval(() => {
+            infoPanel.update({
+                'Total Robots': robots.length,
+                'Components per Robot': '12+',
+                'Active Animations': scene.animate.getActiveCount(),
+                'FPS': scene.ui.fps
+            });
+        }, 1000);
+    </script>
+</body>
+</html>

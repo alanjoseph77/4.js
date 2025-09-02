@@ -1,0 +1,40 @@
+{
+  "name": "4js",
+  "version": "1.0.0",
+  "description": "Ultimate Three.js Utility Library - A comprehensive Three.js utility library that simplifies 3D web development with an ultra-simple API and advanced features.",
+  "main": "src/4js.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node examples/test.js"
+  },
+  "keywords": [
+    "threejs",
+    "3d",
+    "webgl",
+    "graphics",
+    "animation",
+    "particles",
+    "materials",
+    "geometry",
+    "utility"
+  ],
+  "author": "4.js Team",
+  "license": "MIT",
+  "dependencies": {
+    "three": "^0.158.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/4js/4js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/4js/4js/issues"
+  },
+  "homepage": "https://github.com/4js/4js#readme"
+}

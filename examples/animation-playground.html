@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4.js - Animation Playground</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+            "three/examples/jsm/controls/OrbitControls.js": "https://unpkg.com/three@0.158.0/examples/jsm/controls/OrbitControls.js"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import { FourJS } from '../src/4js.js';
+
+        // Create scene
+        const scene = new FourJS('#canvas');
+
+        // Create objects for different animations
+        const objects = [];
+
+        // Rotation animation
+        const rotatingCube = scene.addCube({
+            position: [-6, 2, 0],
+            color: 0xff0000
+        });
+        scene.animate.rotate(rotatingCube, { axis: 'all', speed: 0.02 });
+        objects.push({ object: rotatingCube, name: 'Rotating Cube', type: 'rotate' });
+
+        // Floating animation
+        const floatingSphere = scene.addSphere({
+            position: [-3, 2, 0],
+            color: 0x00ff00
+        });
+        scene.animate.float(floatingSphere, { amplitude: 1, frequency: 1.5 });
+        objects.push({ object: floatingSphere, name: 'Floating Sphere', type: 'float' });
+
+        // Pulsing animation
+        const pulsingSphere = scene.addSphere({
+            position: [0, 2, 0],
+            color: 0x0000ff
+        });
+        scene.animate.pulse(pulsingSphere, { scale: [0.5, 1.5], duration: 2 });
+        objects.push({ object: pulsingSphere, name: 'Pulsing Sphere', type: 'pulse' });
+
+        // Orbiting animation
+        const orbitingCube = scene.addCube({
+            position: [3, 2, 0],
+            color: 0xffff00
+        });
+        scene.animate.orbit(orbitingCube, { 
+            center: { x: 3, y: 2, z: 0 }, 
+            radius: 2, 
+            speed: 0.01 
+        });
+        objects.push({ object: orbitingCube, name: 'Orbiting Cube', type: 'orbit' });
+
+        // Bouncing animation
+        const bouncingSphere = scene.addSphere({
+            position: [6, 2, 0],
+            color: 0xff00ff
+        });
+        scene.animate.bounce(bouncingSphere, { height: 3, damping: 0.9 });
+        objects.push({ object: bouncingSphere, name: 'Bouncing Sphere', type: 'bounce' });
+
+        // Spiral animation
+        const spiralCube = scene.addCube({
+            position: [-6, -1, 0],
+            color: 0x00ffff
+        });
+        scene.animate.spiral(spiralCube, { 
+            radius: 2, 
+            height: 4, 
+            speed: 0.01, 
+            turns: 2 
+        });
+        objects.push({ object: spiralCube, name: 'Spiral Cube', type: 'spiral' });
+
+        // Shake animation (triggered)
+        const shakeCube = scene.addCube({
+            position: [-3, -1, 0],
+            color: 0xff6600
+        });
+        objects.push({ object: shakeCube, name: 'Shake Cube', type: 'shake' });
+
+        // Complex geometry with animation
+        const crystal = scene.geometry.crystal({
+            position: [0, -1, 0],
+            faces: 8,
+            height: 2,
+            color: 0x88ff88
+        });
+        scene.animate.rotate(crystal, { axis: 'y', speed: 0.005 });
+        scene.animate.float(crystal, { amplitude: 0.3, frequency: 0.8 });
+        objects.push({ object: crystal, name: 'Animated Crystal', type: 'complex' });
+
+        // Torus knot with multiple animations
+        const torusKnot = scene.geometry.torusKnot({
+            position: [3, -1, 0],
+            color: 0xff88ff
+        });
+        scene.animate.rotate(torusKnot, { axis: 'x', speed: 0.01 });
+        scene.animate.rotate(torusKnot, { axis: 'y', speed: 0.007 });
+        objects.push({ object: torusKnot, name: 'Torus Knot', type: 'complex' });
+
+        // Cargo robot with animations
+        const robot = scene.addCargoRobot({
+            position: [6, -1, 0],
+            scale: 0.8
+        });
+        scene.animate.rotate(robot, { axis: 'y', speed: 0.008 });
+        scene.animate.float(robot, { amplitude: 0.2, frequency: 1.2 });
+        objects.push({ object: robot, name: 'Animated Robot', type: 'robot' });
+
+        // Add ground
+        const ground = scene.addPlane({
+            width: 20,
+            height: 10,
+            color: 0x333333,
+            position: [0, -3, 0]
+        });
+
+        // Add lighting
+        scene.lighting.coloredLights({
+            colors: [0xff4400, 0x44ff00, 0x0044ff],
+            positions: [
+                [-8, 5, 5],
+                [0, 8, 5],
+                [8, 5, 5]
+            ],
+            animate: true
+        });
+
+        // Set camera position
+        scene.setCameraPosition(12, 8, 12).lookAt(0, 0, 0);
+
+        // UI Setup
+        scene.ui.showFPS();
+        
+        const controlPanel = scene.ui.controlPanel({
+            title: 'Animation Controls',
+            position: 'bottom-left'
+        });
+
+        controlPanel.addButton('Shake Cube', () => {
+            scene.animate.shake(shakeCube, { 
+                intensity: 0.3, 
+                frequency: 15, 
+                duration: 2 
+            });
+        });
+
+        controlPanel.addButton('Stop All Animations', () => {
+            objects.forEach(item => {
+                scene.animate.stopAll(item.object);
+            });
+        });
+
+        controlPanel.addButton('Restart All Animations', () => {
+            // Restart all animations
+            scene.animate.rotate(rotatingCube, { axis: 'all', speed: 0.02 });
+            scene.animate.float(floatingSphere, { amplitude: 1, frequency: 1.5 });
+            scene.animate.pulse(pulsingSphere, { scale: [0.5, 1.5], duration: 2 });
+            scene.animate.orbit(orbitingCube, { 
+                center: { x: 3, y: 2, z: 0 }, 
+                radius: 2, 
+                speed: 0.01 
+            });
+            scene.animate.bounce(bouncingSphere, { height: 3, damping: 0.9 });
+            scene.animate.spiral(spiralCube, { 
+                radius: 2, 
+                height: 4, 
+                speed: 0.01, 
+                turns: 2 
+            });
+            scene.animate.rotate(crystal, { axis: 'y', speed: 0.005 });
+            scene.animate.float(crystal, { amplitude: 0.3, frequency: 0.8 });
+            scene.animate.rotate(torusKnot, { axis: 'x', speed: 0.01 });
+            scene.animate.rotate(torusKnot, { axis: 'y', speed: 0.007 });
+            scene.animate.rotate(robot, { axis: 'y', speed: 0.008 });
+            scene.animate.float(robot, { amplitude: 0.2, frequency: 1.2 });
+        });
+
+        controlPanel.addSlider('Global Speed', 0, 2, 1, (value) => {
+            // This would require modifying the animation system to support global speed multiplier
+            scene.ui.showNotification(`Speed set to ${value.toFixed(1)}x`, {
+                type: 'info',
+                duration: 1500
+            });
+        });
+
+        controlPanel.addCheckbox('Wireframe Mode', false, (checked) => {
+            objects.forEach(item => {
+                item.object.traverse(child => {
+                    if (child.material) {
+                        child.material.wireframe = checked;
+                    }
+                });
+            });
+        });
+
+        const infoPanel = scene.ui.infoPanel({
+            title: 'Animation Stats',
+            position: 'top-right',
+            data: {
+                'Objects': objects.length,
+                'Active Animations': scene.animate.getActiveCount(),
+                'Types': 'Rotate, Float, Pulse, Orbit, Bounce, Spiral, Shake'
+            }
+        });
+
+        // Start the scene
+        scene.start();
+
+        // Show animation info
+        scene.ui.showNotification('Animation Playground Loaded!', {
+            type: 'success',
+            duration: 3000
+        });
+
+        // Periodic shake demo
+        setInterval(() => {
+            if (Math.random() < 0.2) {
+                scene.animate.shake(shakeCube, { 
+                    intensity: 0.2, 
+                    frequency: 10, 
+                    duration: 1 
+                });
+            }
+        }, 8000);
+
+        // Update stats
+        setInterval(() => {
+            const stats = scene.getStats();
+            infoPanel.update({
+                'Objects': objects.length,
+                'Active Animations': scene.animate.getActiveCount(),
+                'FPS': scene.ui.fps,
+                'Triangles': stats.triangles
+            });
+        }, 1000);
+    </script>
+</body>
+</html>

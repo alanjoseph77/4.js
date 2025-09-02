@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4.js - Material Gallery</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+            "three/examples/jsm/controls/OrbitControls.js": "https://unpkg.com/three@0.158.0/examples/jsm/controls/OrbitControls.js"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import { FourJS } from '../src/4js.js';
+
+        // Create scene
+        const scene = new FourJS('#canvas', {
+            backgroundColor: 0x111111
+        });
+
+        // Create material samples
+        const materials = [];
+        const objects = [];
+
+        // Holographic material
+        const holoMaterial = scene.materials.holographic({
+            color: 0x00ffff,
+            intensity: 1.2
+        });
+        const holoSphere = scene.addSphere({
+            position: [-6, 2, 0],
+            radius: 1,
+            material: holoMaterial
+        });
+        objects.push({ object: holoSphere, name: 'Holographic' });
+
+        // Neon material
+        const neonMaterial = scene.materials.neon({
+            color: 0xff0066,
+            intensity: 2
+        });
+        const neonCube = scene.addCube({
+            position: [-3, 2, 0],
+            material: neonMaterial
+        });
+        objects.push({ object: neonCube, name: 'Neon' });
+
+        // Metallic materials
+        const goldMaterial = scene.materials.metallic({
+            type: 'gold'
+        });
+        const goldSphere = scene.addSphere({
+            position: [0, 2, 0],
+            radius: 1,
+            material: goldMaterial
+        });
+        objects.push({ object: goldSphere, name: 'Gold' });
+
+        const chromeMaterial = scene.materials.metallic({
+            type: 'chrome'
+        });
+        const chromeCube = scene.addCube({
+            position: [3, 2, 0],
+            material: chromeMaterial
+        });
+        objects.push({ object: chromeCube, name: 'Chrome' });
+
+        // Crystal material
+        const crystalMaterial = scene.materials.crystal({
+            color: 0x00ff88,
+            transparency: 0.7
+        });
+        const crystalGeom = scene.geometry.crystal({
+            position: [6, 2, 0],
+            faces: 8,
+            height: 2,
+            material: crystalMaterial
+        });
+        objects.push({ object: crystalGeom, name: 'Crystal' });
+
+        // Gradient material
+        const gradientMaterial = scene.materials.gradient({
+            colors: [0xff0000, 0x0000ff, 0x00ff00],
+            direction: 'vertical'
+        });
+        const gradientCube = scene.addCube({
+            position: [-6, -1, 0],
+            material: gradientMaterial
+        });
+        objects.push({ object: gradientCube, name: 'Gradient' });
+
+        // Plasma material
+        const plasmaMaterial = scene.materials.plasma({
+            colors: [0xff0000, 0x00ff00, 0x0000ff, 0xffff00],
+            speed: 2
+        });
+        const plasmaSphere = scene.addSphere({
+            position: [-3, -1, 0],
+            radius: 1,
+            material: plasmaMaterial
+        });
+        objects.push({ object: plasmaSphere, name: 'Plasma' });
+
+        // Water material
+        const waterMaterial = scene.materials.water({
+            color: 0x006994,
+            waveSpeed: 1.5
+        });
+        const waterPlane = scene.addPlane({
+            position: [0, -1, 0],
+            width: 2,
+            height: 2,
+            material: waterMaterial,
+            rotation: [0, 0, 0]
+        });
+        objects.push({ object: waterPlane, name: 'Water' });
+
+        // Lava material
+        const lavaMaterial = scene.materials.lava({
+            color1: 0xff4500,
+            color2: 0xff0000,
+            speed: 1.5
+        });
+        const lavaSphere = scene.addSphere({
+            position: [3, -1, 0],
+            radius: 1,
+            material: lavaMaterial
+        });
+        objects.push({ object: lavaSphere, name: 'Lava' });
+
+        // Glow material
+        const glowMaterial = scene.materials.glow({
+            color: 0x00ff00,
+            intensity: 2
+        });
+        const glowCube = scene.addCube({
+            position: [6, -1, 0],
+            material: glowMaterial
+        });
+        objects.push({ object: glowCube, name: 'Glow' });
+
+        // Add ground
+        const ground = scene.addPlane({
+            width: 20,
+            height: 10,
+            color: 0x222222,
+            position: [0, -3, 0]
+        });
+
+        // Add animations
+        objects.forEach((item, index) => {
+            scene.animate.rotate(item.object, { 
+                axis: index % 2 === 0 ? 'y' : 'x', 
+                speed: 0.01 + index * 0.002 
+            });
+            
+            if (index % 3 === 0) {
+                scene.animate.float(item.object, { 
+                    amplitude: 0.3, 
+                    frequency: 0.8 + index * 0.1 
+                });
+            }
+        });
+
+        // Enhanced lighting for materials
+        scene.lighting.threePointLighting({
+            keyIntensity: 1.5,
+            fillIntensity: 0.8,
+            backIntensity: 0.5
+        });
+
+        // Add colored accent lights
+        scene.lighting.coloredLights({
+            colors: [0xff0066, 0x00ff66, 0x6600ff],
+            positions: [
+                [-8, 4, 4],
+                [0, 6, 4],
+                [8, 4, 4]
+            ],
+            intensity: 0.8,
+            animate: true
+        });
+
+        // Set camera position
+        scene.setCameraPosition(12, 6, 8).lookAt(0, 0, 0);
+
+        // UI Setup
+        scene.ui.showFPS();
+        
+        const controlPanel = scene.ui.controlPanel({
+            title: 'Material Controls',
+            position: 'bottom-left'
+        });
+
+        controlPanel.addButton('Cycle Camera View', () => {
+            const positions = [
+                [12, 6, 8],
+                [0, 8, 12],
+                [-12, 6, 8],
+                [0, 12, 0]
+            ];
+            const currentPos = scene.camera.position;
+            let nextIndex = 0;
+            
+            positions.forEach((pos, index) => {
+                if (Math.abs(currentPos.x - pos[0]) < 1) {
+                    nextIndex = (index + 1) % positions.length;
+                }
+            });
+            
+            const newPos = positions[nextIndex];
+            scene.setCameraPosition(...newPos).lookAt(0, 0, 0);
+        });
+
+        controlPanel.addCheckbox('Wireframe Mode', false, (checked) => {
+            objects.forEach(item => {
+                if (item.object.material) {
+                    item.object.material.wireframe = checked;
+                }
+            });
+        });
+
+        controlPanel.addSlider('Animation Speed', 0, 0.05, 0.01, (value) => {
+            // Update animation speeds
+            scene.animate.animations.forEach(anim => {
+                if (anim.config.speed !== undefined) {
+                    anim.config.speed = value;
+                }
+            });
+        });
+
+        const infoPanel = scene.ui.infoPanel({
+            title: 'Material Gallery',
+            position: 'top-right',
+            data: {
+                'Materials': objects.length,
+                'Holographic': '✓',
+                'Neon': '✓',
+                'Metallic': '✓',
+                'Crystal': '✓',
+                'Plasma': '✓',
+                'Water': '✓',
+                'Lava': '✓',
+                'Gradient': '✓'
+            }
+        });
+
+        // Start the scene
+        scene.start();
+
+        // Show material info notifications
+        let currentMaterial = 0;
+        const showNextMaterial = () => {
+            if (currentMaterial < objects.length) {
+                const material = objects[currentMaterial];
+                scene.ui.showNotification(`${material.name} Material`, {
+                    type: 'info',
+                    duration: 2000
+                });
+                currentMaterial++;
+                setTimeout(showNextMaterial, 2500);
+            }
+        };
+        
+        setTimeout(showNextMaterial, 1000);
+
+        // Update stats
+        setInterval(() => {
+            const stats = scene.getStats();
+            infoPanel.update({
+                'Materials': objects.length,
+                'FPS': scene.ui.fps,
+                'Objects': stats.objects,
+                'Triangles': stats.triangles
+            });
+        }, 1000);
+    </script>
+</body>
+</html>

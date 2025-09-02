@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4.js - Particle Effects Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+            "three/examples/jsm/controls/OrbitControls.js": "https://unpkg.com/three@0.158.0/examples/jsm/controls/OrbitControls.js"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import { FourJS } from '../src/4js.js';
+
+        // Create scene
+        const scene = new FourJS('#canvas', {
+            backgroundColor: 0x000011
+        });
+
+        // Add ground
+        const ground = scene.addPlane({
+            width: 50,
+            height: 50,
+            color: 0x111111,
+            position: [0, -5, 0]
+        });
+
+        // Create particle systems
+        const starField = scene.particles.stars({
+            count: 2000,
+            spread: 100,
+            twinkle: true
+        });
+
+        const fire = scene.particles.fire({
+            position: [-8, -2, 0],
+            count: 300,
+            height: 4,
+            spread: 1.5
+        });
+
+        const magic = scene.particles.magic({
+            position: [8, 0, 0],
+            count: 150,
+            colors: [0xff00ff, 0x00ffff, 0xffff00, 0xff0066],
+            spread: 3
+        });
+
+        const snow = scene.particles.snow({
+            count: 800,
+            area: 40,
+            fallSpeed: 2,
+            windStrength: 0.3
+        });
+
+        // Add some objects to interact with particles
+        const crystal = scene.geometry.crystal({
+            position: [0, 0, 0],
+            faces: 8,
+            height: 3,
+            color: 0x00ffff,
+            opacity: 0.7
+        });
+
+        const spiral = scene.geometry.spiral({
+            position: [0, -2, 8],
+            radius: 2,
+            height: 6,
+            turns: 4,
+            color: 0xff6600
+        });
+
+        // Add dynamic lighting
+        scene.lighting.coloredLights({
+            colors: [0xff4500, 0x00ff88, 0x4400ff],
+            positions: [
+                [-8, 3, 0],  // Fire light
+                [8, 3, 0],   // Magic light
+                [0, 8, 0]    // Top light
+            ],
+            animate: true
+        });
+
+        // Add animations
+        scene.animate.rotate(crystal, { axis: 'y', speed: 0.01 });
+        scene.animate.float(crystal, { amplitude: 0.5, frequency: 0.5 });
+        scene.animate.rotate(spiral, { axis: 'y', speed: 0.005 });
+
+        // Set camera position
+        scene.setCameraPosition(15, 10, 15).lookAt(0, 0, 0);
+
+        // UI Setup
+        scene.ui.showFPS();
+        
+        const controlPanel = scene.ui.controlPanel({
+            title: 'Particle Controls',
+            position: 'bottom-left'
+        });
+
+        controlPanel.addButton('Explosion!', () => {
+            scene.particles.explosion({
+                position: [Math.random() * 10 - 5, 2, Math.random() * 10 - 5],
+                count: 400,
+                speed: 10,
+                colors: [0xff4500, 0xff6600, 0xffaa00, 0xffffff]
+            });
+        });
+
+        controlPanel.addButton('Add Fire', () => {
+            scene.particles.fire({
+                position: [Math.random() * 16 - 8, -2, Math.random() * 16 - 8],
+                count: 200,
+                height: 3
+            });
+        });
+
+        controlPanel.addButton('Magic Burst', () => {
+            scene.particles.magic({
+                position: [Math.random() * 10 - 5, 3, Math.random() * 10 - 5],
+                count: 100,
+                colors: [0xff00ff, 0x00ffff, 0xffff00],
+                spread: 5
+            });
+        });
+
+        controlPanel.addCheckbox('Show Wireframe', false, (checked) => {
+            scene.scene.traverse(child => {
+                if (child.isMesh && child.material && !child.isPoints) {
+                    child.material.wireframe = checked;
+                }
+            });
+        });
+
+        const infoPanel = scene.ui.infoPanel({
+            title: 'Particle Stats',
+            position: 'top-right',
+            data: {
+                'Active Systems': 4,
+                'Total Particles': '3000+',
+                'Fire Particles': 300,
+                'Magic Particles': 150,
+                'Snow Particles': 800,
+                'Stars': 2000
+            }
+        });
+
+        // Start the scene
+        scene.start();
+
+        // Show welcome notification
+        scene.ui.showNotification('Particle Effects Demo Loaded!', {
+            type: 'info',
+            duration: 3000
+        });
+
+        // Periodic explosions for demo
+        setInterval(() => {
+            if (Math.random() < 0.3) {
+                scene.particles.explosion({
+                    position: [Math.random() * 20 - 10, Math.random() * 5, Math.random() * 20 - 10],
+                    count: 200,
+                    speed: 6
+                });
+            }
+        }, 5000);
+
+        // Update info panel
+        setInterval(() => {
+            const stats = scene.getStats();
+            infoPanel.update({
+                'Active Systems': scene.particles.systems.length,
+                'Scene Objects': stats.objects,
+                'Render Calls': stats.calls,
+                'FPS': scene.ui.fps
+            });
+        }, 1000);
+    </script>
+</body>
+</html>
